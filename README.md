@@ -26,3 +26,6 @@ ENGINE=InnoDB
 DEFAULT CHARSET=utf8
 COLLATE=utf8_general_ci;
 ```
+So, before to clone the project enter into project directory and then run the php server.
+
+php -S 0.0.0.0:8082 -t public 
