@@ -1,5 +1,7 @@
 # placeToPayStoreApi
  
+Summary on video: https://youtu.be/pSseQnbQoyg
+ 
 First, we need to create a DataBase called 'placetopay'. The following SQL will necessary.
 
 ```Sql
