@@ -29,6 +29,23 @@ CREATE TABLE `products` (
 
 INSERT INTO products (unique_code, name, description, url_pic, price) VALUES ('324354651', 'The Joy of PHP: A Beginner\'s Guide to Programming Interactive Web Applications with PHP and mySQL', 'Author – Alan Forbes, Latest Edition – Fifth Edition, Publisher – Plum Island Publishing LLC', 'https://hackr.io/blog/wp-content/uploads/2019/01/PHP-Beginners-Guide-226x300.jpg', 18.95);
 ```
+By default, the current database connection info is:
+```PHP
+    'db' => [
+        'adapters' => [
+            'Mysql' => [
+                'database' => 'placetopay',
+                'driver' => 'PDO_Mysql',
+                'hostname' => 'localhost',
+                'username' => 'root',
+                'password' => 'root',
+                'port' => '5432',
+            ],
+        ],
+    ],
+```
+Please, consider to modify this file if you requiere */placeToPayStoreApi/config/autoload/local.php*
+
 So, after to clone the project enter into project directory and then run the php server.
 
 php -S 0.0.0.0:8082 -t public
