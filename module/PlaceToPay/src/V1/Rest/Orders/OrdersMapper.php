@@ -2,21 +2,62 @@
 namespace PlaceToPay\V1\Rest\Orders;
 
 use Zend\Db\Adapter\AdapterInterface;
-#use Zend\Db\Sql\Insert;
 
 
 class OrdersMapper
 {
+    
     protected $adapter;
+    
+    private $placeToPayConfig = [];
 
-    public function __construct(AdapterInterface $adapter)
+    public function __construct(AdapterInterface $adapter, $placeToPayConfig)
     {
         $this->adapter = $adapter;
+        
+        $this->placeToPayConfig = $placeToPayConfig;
+        
+    }
+    
+    public function getOrderById ($id){
+        
+        $tableGateWay = new \Zend\Db\TableGateway\TableGateway('orders', $this->adapter);
+        
+        $response = $tableGateWay->select(['id'=>$id]);
+        
+        return $response;
+    }
+    
+    public function update ($id, $data){
+        
+        $tableGateWay = new \Zend\Db\TableGateway\TableGateway('orders', $this->adapter);
+        
+        $newData = [
+            
+            'updated_at' => date("Y-m-d H:i:s")
+        ];
+        
+        if (is_object($data)){
+            
+            $newData['status'] = ($data->status=='APPROVED')?'APPROVED':'REJECTED';
+            
+            $response = $tableGateWay->update($newData,['request_id'=>$id]);
+            
+        }else{
+        
+            if (isset($data['request_id']))
+            
+                $newData['request_id'] = $data['request_id'];
+            
+            $response = $tableGateWay->update($newData,['id'=>$id]);
+        }
+        
+        return $response;
     }
 
     public function create($data)
     {
-        /*
+        
         $tableGateWay = new \Zend\Db\TableGateway\TableGateway('orders', $this->adapter);
         
         $newData = [
@@ -37,42 +78,54 @@ class OrdersMapper
         $tableGateWay->insert($newData);
 
         $lastInsertId = $tableGateWay->getAdapter()->getDriver()->getLastGeneratedValue('historical_id_seq');
-        */
-        //return array ('last_insert_id' => $lastInsertId);
         
-        $placeToPay = new \Dnetix\Redirection\PlaceToPay([
-            'login' => '6dd490faf9cb87a9862245da41170ff2',
-            'tranKey' => '024h1IlD',
-            'url' => 'https://dev.placetopay.com/redirection/',
-        ]);
+        $placeToPay = new \Dnetix\Redirection\PlaceToPay($this->placeToPayConfig);
         
-        $reference = 'prd001';
+        $reference = $data->unique_code;
+        
         $request = [
             'payment' => [
                 'reference' => $reference,
-                'description' => 'Corbata',
+                'description' => $data->name,
                 'amount' => [
                     'currency' => 'USD',
-                    'total' => 120,
+                    'total' => $data->price,
                 ],
             ],
             'expiration' => date('c', strtotime('+2 days')),
-            'returnUrl' => 'http://example.com/response?reference=' . $reference,
-            'ipAddress' => '127.0.0.1',
-            'userAgent' => 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/52.0.2743.116 Safari/537.36',
+            'returnUrl' => $data->urlReturn.$lastInsertId,
+            'ipAddress' => $data->ip,
+            'userAgent' => $data->userAgent,
         ];
         
         $response = $placeToPay->request($request);
-        
         
         if ($response->isSuccessful()) {
             // STORE THE $response->requestId() and $response->processUrl() on your DB associated with the payment order
             // Redirect the client to the processUrl or display it on the JS extension
             //header('Location: ' . $response->processUrl());
-            return ['request_id' => $response->requestId(), 'processUrl' => $response->processUrl()];
+            
+            $updateReturn = $this->update($lastInsertId, ['request_id' => $response->requestId()]);
+            
+            return [
+                
+                'request_id'        => $response->requestId(),
+                
+                'processUrl'        => $response->processUrl(),
+                
+                'last_insert_id'    => $lastInsertId,
+                
+                'updateReturn'      => $updateReturn,
+            ];
+            
         } else {
             // There was some error so check the message and log it
-            return ['message' => $response->status()->message()];
+            return [
+                'message' => $response->status()->message(),
+                
+                'dataSent' => $data,
+                
+            ];
         }
         
     }

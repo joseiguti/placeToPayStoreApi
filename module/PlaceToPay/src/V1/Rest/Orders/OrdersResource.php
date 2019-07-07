@@ -54,7 +54,7 @@ class OrdersResource extends AbstractResourceListener
      */
     public function fetch($id)
     {
-        return new ApiProblem(405, 'The GET method has not been defined for individual resources');
+        return $this->mapper->getOrderById($id);
     }
 
     /**
@@ -111,6 +111,7 @@ class OrdersResource extends AbstractResourceListener
      */
     public function update($id, $data)
     {
-        return new ApiProblem(405, 'The PUT method has not been defined for individual resources');
+        
+        return $this->mapper->update($id, $data);
     }
 }

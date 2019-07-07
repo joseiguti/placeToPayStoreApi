@@ -29,8 +29,11 @@ class Module implements ApigilityProviderInterface
                 
                 'PlaceToPay\V1\Rest\Orders\OrdersMapper' => function ($sm){
                     
-                    return new \PlaceToPay\V1\Rest\Orders\OrdersMapper(new \Zend\Db\Adapter\Adapter($sm->get('config')['db']['adapters']['Mysql']));
-                }
+                    return new \PlaceToPay\V1\Rest\Orders\OrdersMapper(new \Zend\Db\Adapter\Adapter(
+                        $sm->get('config')['db']['adapters']['Mysql']),
+                        $sm->get('config')['placetopay']);
+                },
+                
                 
             ]
             

@@ -17,6 +17,8 @@ class OrdersEntity
     
     public $updated_at;
     
+    public $request_id;
+    
     public function getArrayCopy()
     {
         return array(
@@ -34,6 +36,8 @@ class OrdersEntity
             'created_at'        => $this->created_at,
             
             'updated_at'        => $this->updated_at,
+            
+            'request_id'        => $this->request_id,
     
         );
     }
@@ -54,6 +58,8 @@ class OrdersEntity
         $this->created_at       = $array['created_at'];
         
         $this->updated_at       = $array['updated_at'];
+        
+        $this->request_id       = $array['request_id'];
     }
     
 }
