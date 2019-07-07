@@ -19,6 +19,15 @@ class OrdersMapper
         
     }
     
+    public function getAll (){
+
+        $tableGateWay = new \Zend\Db\TableGateway\TableGateway('orders', $this->adapter);
+        
+        $response = $tableGateWay->select();
+        
+        return $response;
+    }
+    
     public function getOrderById ($id){
         
         $tableGateWay = new \Zend\Db\TableGateway\TableGateway('orders', $this->adapter);
